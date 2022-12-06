@@ -1,0 +1,34 @@
+{
+  "name": "rpp2205-ken-question-answers-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "service": "nodemon server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpp2205-sdc-taklamakan/rpp2205-ken-question-answers-service"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rpp2205-sdc-taklamakan/rpp2205-ken-question-answers-service/issues"
+  },
+  "homepage": "https://github.com/rpp2205-sdc-taklamakan/rpp2205-ken-question-answers-service#readme",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.20.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.20",
+    "pg": "^8.8.0",
+    "pg-promise": "^10.15.4",
+    "pgp": "^0.1.0"
+  }
+}
