@@ -1,11 +1,15 @@
-const {masterInfo} = require('./models.js')
+const {gettingQuestion} = require('./models.js')
+const bodyParser = require("body-parser");
 
-const masterInfoControl = (req, res) => {
-  let info = req || 77107
-  console.log('inside controller')
-  masterInfo(info)
+const currentData = {};
+
+
+const getQuestion = (req, res) => {
+  // console.log('req,res', req.params)
+  gettingQuestion(req.params.product_id)
   .then((data) => {
-    return res.send(data)
+    //console.log(data,' inside controller masterInfoControl')
+    res.status(200).json(data)
   })
   .catch((err) => {
     if (err) {
@@ -15,5 +19,5 @@ const masterInfoControl = (req, res) => {
 }
 
 module.exports = {
-  masterInfoControl
+  getQuestion
 }
