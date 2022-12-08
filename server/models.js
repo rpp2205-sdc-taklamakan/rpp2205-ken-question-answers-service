@@ -2,78 +2,100 @@ const pgp = require('pg-promise')();
 const bodyParser = require("body-parser");
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
 
+let current = null;
 
 const gettingQuestion = function(input) {
   let outsideObj = {};
 
-  let newData = {
-    product_id: input,
-    results: []
+  class ProductData {
+    constructor (id, questions){
+      this.id = id;
+      this.questions = questions;
+    }
   }
 
-  let resultData = {
-    question_id: null,
-    question_body: null,
-    question_date: null,
-    asker_name: null,
-    question_helpfulness: null,
-    reported: null,
-    answers: null
+  class QuestionData {
+    constructor (id, body, date, name, helpfulness, reported, answers) {
+      this.id = id;
+      this.body = body;
+      this.date = date;
+      this.name = name;
+      this.helpfulness = helpfulness;
+      this.reported = reported;
+      this.answers = answers;
+    }
   };
 
-  let resultAnswers = {
-    id: null,
-    body: null,
-    date: null,
-    answerer_name: null,
-    answerer_email: null,
-    helpfulness: null,
-    photos:[]
+  class AnswerData {
+    constructor (id, body, date, name, email, reported, helpfulness, photos){
+      this.id= id;
+      this.body = body;
+      this.date = date;
+      this.name = name;
+      this.email = email;
+      this.reported = reported;
+      this.helpfulness = helpfulness;
+      this.photos = photos;
+    }
   }
+  let prod = new ProductData;
+  prod.id = input;
 
-  return db.query(`SELECT * from Question where productId=${input};`)
+  return db.query(`SELECT * from Question where productId=${prod.id};`)
   .then((data) => {
-    console.log(data, 'inside first select')
-    resultData.question_id = data[0].idquestion;
-    resultData.question_body = data[0].body;
-    resultData.question_date = data[0].date;
-    resultData.asker_name = data[0].askername;
-    resultData.question_helpfulness = data[0].helpfulness;
-    resultData.reported = data[0].reported;
-    resultData.answers = {};
-    newData.results.push(resultData);
-    return db.query(`SELECT * from Answers where questionId=${resultData.question_id };`)
-    .then((data1) => {
-      // console.log(data1, 'data1')
-      resultAnswers.id = data1[0].idanswer;
-      resultAnswers.body = data1[0].body;
-      resultAnswers.date = data1[0].date;
-      resultAnswers.answerer_name = data1[0].answerername;
-      resultAnswers.answerer_email = data1[0].answereremail;
-      resultAnswers.helpfulness = data1[0].helpfulness;
-      resultData.answers = resultAnswers;
-      return db.query(`SELECT * from answerPhotos where answerId=${resultAnswers.id};`)
-      .then((data2) => {
-        // console.log(resultAnswers, resultData, 'test Filimon' )
-        // console.log(data2, 'data2')
-        resultAnswers.photos = data2
-        outsideObj.newData = newData;
-        outsideObj.resultData = resultData;
-        outsideObj.resultAnswers = resultAnswers;
-        //console.log(outsideObj)
-        // res.status(200).json(outsideObj);
-        return outsideObj
-      })
-      .catch((error) => {
-        console.log(error, 'error inside answerPhotos masterInfo')
-        res.status(404).send(error)
-      })
+    //console.log(data, 'inside first select')
+
+    let results = [];
+    data.forEach((item) => {
+      let newQuestion = new QuestionData;
+      newQuestion.id = item.idquestion;
+      newQuestion.body = item.body;
+      newQuestion.date = item.date;
+      newQuestion.name = item.name;
+      newQuestion.helpfulness = item.helpfulness;
+      newQuestion.reported = item.reported;
+      newQuestion.answers = {};
+      results.push(newQuestion)
     })
-    .catch((error) => {
-      console.log(error, 'error inside Answers masterInfo')
-      res.status(404).send(error)
-    })
+    prod.questions = results;
+
+    ////////// looping through array of questions to assign answers ///////////////
+    results.forEach((q) => {
+      return db.query(`SELECT * from Answers where questionId=${q.id };`)
+        .then((data1) => {
+          let resultAnswers = [];
+          data1.forEach((item) => {
+            let newAnswers = new AnswerData;
+            newAnswers.id= item.idanswer;
+            newAnswers.body = item.body;
+            newAnswers.date = item.date;
+            newAnswers.name = item.answerername;
+            newAnswers.email = item.answereremail;
+            newAnswers.reported = item.reported;
+            newAnswers.helpfulness = item.helpfulness;
+            newAnswers.photos = [];
+            resultAnswers.push(newAnswers)
+          })
+          q.answers = resultAnswers;
+          resultAnswers.forEach((ph) => {
+            return db.query(`SELECT * from answerPhotos where answerId=${ph.id};`)
+              .then((data2) => {
+                newAnswers = data2;
+                current = prod;
+                return prod
+              })
+              .catch((error) => {
+                console.log(error, 'error inside answerPhotos masterInfo')
+                res.status(404).send(error)
+              })
+          })
+        })
+        .catch((error) => {
+          console.log(error, 'error inside Answers masterInfo')
+          res.status(404).send(error)
+        })
   })
+    })
   .catch((error) => {
     console.log(error, 'error inside Answers masterInfo')
     res.status(404).send(error)
