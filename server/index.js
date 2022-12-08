@@ -4,6 +4,7 @@ const app = express();
 const port = 3001;
 const pgp = require('pg-promise')();
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
+const {masterInfoControl} = require('./controller.js')
 
 
 // parse requests of content-type - application/json
@@ -13,14 +14,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.status(200).send('Ken Service');
-})
+
 
 // get questions
+// app.get('/qa/questions/:product_id', (req, res) => {
+//   console.log('inside productId')
+//   db.query(`SELECT * from Question where productId=${req.params.product_id};`)
+//   .then((data) => {
+//     console.log(data)
+//   })
+//   .catch((err) => {
+//     console.log(err, 'there is an error connecting to db')
+//   })
+//   res.status(200).send(console.log('inside get quesitons'))
+// });
 app.get('/qa/questions/:product_id', (req, res) => {
-  console.log('inside productId')
-  res.status(200).send(console.log('inside get quesitons'))
+  console.log(masterInfoControl(), 'inside index.js')
+
 });
 
 // get answers
