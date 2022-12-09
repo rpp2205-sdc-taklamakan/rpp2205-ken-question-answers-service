@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "service": "nodemon server/index.js"
+    "service": "nodemon server/index.js",
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,7 @@
     "nodemon": "^2.0.20",
     "pg": "^8.8.0",
     "pg-promise": "^10.15.4",
-    "pgp": "^0.1.0"
+    "pgp": "^0.1.0",
+    "supertest": "^6.3.3"
   }
 }
