@@ -8,7 +8,7 @@ const getQuestion = (req, res) => {
   // console.log('req,res', req.params)
   gettingQuestion(req.params.product_id)
   .then((data) => {
-    console.log(data,' inside controller masterInfoControl')
+    console.log(data[0].results.answers,' inside controller masterInfoControl')
     res.status(200).json(data)
   })
   .catch((err) => {
@@ -31,27 +31,15 @@ const getAnswer = (req, res) => {
   })
 }
 
-const postQuestion = (req, res) => {
-  console.log(req.data)
-  let obj = {
-    body: req.data.body,
-    date: req.data.date,
-    askerName: req.data.name,
-    askerEmail: req.data.email,
-    reported: req.data.reported,
-    helpfulness: req.data.helpfulness,
-    productId: req.data.productId
+const postQuestion = async (req, res) => {
+  // console.log(req.body, 'inside controller postQuestion')
+  const anythingElse = await postingQuestion(req.body)
+  console.log(anythingElse, 'inside constroller postQuestion')
+  if (!anythingElse) {
+    res.status(200)
+  } else {
+    res.status(500).send(anythingElse)
   }
-  postingQuestion(obj)
-  .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
-    res.status(200).send(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in postQuestion'))
-    }
-  })
 }
 
 const postAnswer = (req, res) => {

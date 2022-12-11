@@ -20,7 +20,7 @@ app.get('/',(req, res) => {
 
 // get questions
 app.get('/qa/questions/:product_id',(req, res) => {
-  res.status(200).json(getQuestion(req, res))
+  getQuestion(req, res)
 })
 
 // get answers

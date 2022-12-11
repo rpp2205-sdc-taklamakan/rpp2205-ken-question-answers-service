@@ -41,67 +41,41 @@ const gettingQuestion = function(input) {
   let prod = new ProductData;
   prod.id = input;
 
-  return db.query(`SELECT * from Question where productId=${prod.id};`)
+  return db.query(`
+  SELECT
+  json_build_object(
+    'question_id', Question.idQuestion, 'question_body', Question.body, 'question_date', Question.date, 'asker_name', Question.askerName,
+    'question_helpfulness', Question.helpfulness, 'reported', Question.reported, 'answers', Answers
+  ) results
+  FROM Question
+  LEFT JOIN (
+    SELECT questionId,
+    json_agg(
+      json_build_object(
+        'id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
+        'helpfulness', Answers.helpfulness, 'questionId', Answers.questionId, 'photos', answerPhotos
+      )
+    ) answer
+    FROM Answers
+    LEFT JOIN (
+      SELECT answerId,
+      json_agg(
+        json_build_object(
+          'url', answerPhotos.url
+        )
+      ) photos
+      FROM answerPhotos
+      GROUP BY answerId
+    ) answerPhotos on Answers.idAnswer = answerPhotos.answerId
+    GROUP BY questionId
+  ) Answers on Question.idQuestion = Answers.questionId
+  WHERE questionId=${input}
+  `)
   .then((data) => {
-    //console.log(data, 'inside first select')
-
-    let results = [];
-    data.forEach((item) => {
-      let newQuestion = new QuestionData;
-      newQuestion.id = item.idquestion;
-      newQuestion.body = item.body;
-      newQuestion.date = item.date;
-      newQuestion.name = item.name;
-      newQuestion.helpfulness = item.helpfulness;
-      newQuestion.reported = item.reported;
-      newQuestion.answers = {};
-      results.push(newQuestion)
-    })
-    prod.questions = results;
-
-    ////////// looping through array of questions to assign answers ///////////////
-    results.forEach((q) => {
-      return db.query(`SELECT * from Answers where questionId=${q.id };`)
-        .then((data1) => {
-          let resultAnswers = [];
-          data1.forEach((item) => {
-            let newAnswers = new AnswerData;
-            newAnswers.answer_id= item.idanswer;
-            newAnswers.body = item.body;
-            newAnswers.date = item.date;
-            newAnswers.answerer_name = item.answerername;
-            newAnswers.email = item.answereremail;
-            newAnswers.reported = item.reported;
-            newAnswers.helpfulness = item.helpfulness;
-            newAnswers.photos = [];
-            resultAnswers.push(newAnswers)
-          })
-          q.answers = resultAnswers;
-          // console.log(resultAnswers)
-
-          resultAnswers.forEach((ph) => {
-            return db.query(`SELECT * from answerPhotos where answerId=${ph.answer_id};`)
-            .then((data2) => {
-              ph.photos = data2;
-              console.log(prod,' inside')
-              return prod;
-            })
-            return prod
-            .catch((error) => {
-              console.log(error, 'error inside answerPhotos getQuestion')
-              res.status(404).send(error)
-            })
-          })
-        })
-        .catch((error) => {
-          console.log(error, 'error inside Answers getQuestion')
-          res.status(404).send(error)
-        })
-  })
+    return data
     })
   .catch((error) => {
     console.log(error, 'error inside Answers masterInfo')
-    res.status(404).send(error)
   })
 }
 
@@ -144,15 +118,12 @@ const gettingAnswer = function(id,count) {
   })
 }
 
-const postingQuestion = function(data) {
-  db.query(`INSERT INTO question (body, date, askerName, askerEmail, reported, productId) values ('${data.body}', '${data.date}', '${data.askerName}', '${data.askerEmail}', ${data.reported}, ${data.helpfulness}, ${data.productId})`)
-  .then((data) => {
-    return console.log('successfully posted to database')
-  })
-  .catch((error) => {
-    console.log(error, 'error inside postingQuestion')
-    res.status(404).send(error)
-  })
+const postingQuestion = async function(data) {
+  console.log(data)
+  const res = await db.query(`INSERT INTO question (body, date, askerName, askerEmail, reported, helpfulness, productId)
+  values ('hohoho1', 'string', 'exampleName', 'e@gmail', 1, 2, 88777)`)
+
+  return res
 }
 
 const postingAnswer = function(data) {
