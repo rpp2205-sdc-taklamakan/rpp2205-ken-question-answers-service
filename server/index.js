@@ -8,23 +8,33 @@ const {getQuestion, getAnswer, postQuestion, postAnswer, markAnswerHelpful, mark
 
 
 // parse requests of content-type - application/json
-app.use(express.json());
+// app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/',(req, res) => {
   res.status(200).json(getQuestion)
 })
 
-// get questions
-app.get('/qa/questions/:product_id',(req, res) => {
+app.get('/qa/questions/',(req, res) => {
+  console.log('definitive', req.query)
   getQuestion(req, res)
 })
 
+// get questions
+// app.get('/qa/questions/:product_id',(req, res) => {
+//   console.log(req.query)
+//   getQuestion(req, res)
+// })
+
 // tried to pass in getQuestion as a argument instead
 // app.get('/qa/questions/:product_id', getQuestion)
+// point free style
+
+
+
 
 // get answers
 app.get('/qa/questions/:question_id/answers', (req, res) => {

@@ -6,7 +6,7 @@ const currentData = {};
 
 const getQuestion = async (req, res) => {
   // console.log('req,res', req.params)
-  const getQ = await gettingQuestion(req.params.product_id)
+  const getQ = await gettingQuestion(req.query.product_id, req.query.count)
   if (getQ) {
     res.status(200).json(getQ)
   } else {

@@ -36,7 +36,7 @@ class AnswerData {
   }
 }
 
-const gettingQuestion = async function(input) {
+const gettingQuestion = async function(input, count) {
   const gettingQ = await db.query(`
   SELECT
   json_build_object(
@@ -65,7 +65,7 @@ const gettingQuestion = async function(input) {
     ) answerPhotos on Answers.idAnswer = answerPhotos.answerId
     GROUP BY questionId
   ) Answers on Question.idQuestion = Answers.questionId
-  WHERE productId=${input}
+  WHERE productId=${input} LIMIT ${count}
   `)
   return gettingQ
 }
