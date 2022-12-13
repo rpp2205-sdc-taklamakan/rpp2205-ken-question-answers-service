@@ -19,9 +19,12 @@ app.get('/',(req, res) => {
 })
 
 // get questions
-app.get('/qa/questions/:product_id',(req, getQuestion) => {
+app.get('/qa/questions/:product_id',(req, res) => {
   getQuestion(req, res)
 })
+
+// tried to pass in getQuestion as a argument instead
+// app.get('/qa/questions/:product_id', getQuestion)
 
 // get answers
 app.get('/qa/questions/:question_id/answers', (req, res) => {
