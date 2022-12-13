@@ -4,24 +4,20 @@ const bodyParser = require("body-parser");
 const currentData = {};
 
 
-const getQuestion = (req, res) => {
+const getQuestion = async (req, res) => {
   // console.log('req,res', req.params)
-  gettingQuestion(req.params.product_id)
-  .then((data) => {
-    console.log(data[0].results.answers,' inside controller masterInfoControl')
-    res.status(200).json(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in getQuestion'))
-    }
-  })
+  const getQ = await gettingQuestion(req.params.product_id)
+  if (getQ) {
+    res.status(200).json(getQ)
+  } else {
+    res.status(500).send(getQ)
+  }
 }
 
 const getAnswer = (req, res) => {
-  gettingAnswer(req.params.question_id, 50)
+  gettingAnswer(req.params.question_id)
   .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
+    console.log(data,' inside controller masterInfoControl')
     res.status(200).json(data)
   })
   .catch((err) => {
@@ -33,88 +29,58 @@ const getAnswer = (req, res) => {
 
 const postQuestion = async (req, res) => {
   // console.log(req.body, 'inside controller postQuestion')
-  const anythingElse = await postingQuestion(req.body)
-  console.log(anythingElse, 'inside constroller postQuestion')
-  if (!anythingElse) {
-    res.status(200)
+  const postQ = await postingQuestion(req.body)
+  console.log(postQ, 'inside constroller postQuestion')
+  if (!postQ) {
+    return res.status(200)
   } else {
-    res.status(500).send(anythingElse)
+    return res.status(500).send(postQ)
   }
 }
 
-const postAnswer = (req, res) => {
-  let obj = {
-    body: req.data.body,
-    date: req.data.date,
-    answererName: req.data.answererName,
-    answererEmail: req.data.answerEmail,
-    reported: req.data.reported,
-    helpfulness: req.data.helpfulness,
-    questionId: req.data.questionId,
-    }
-  postingAnswer(obj)
-  .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
-    res.status(200).send(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in postAnswer'))
-    }
-  })
+const postAnswer = async (req, res) => {
+  const postA = await postingAnswer(req.body)
+  if (!postA) {
+    return res.status(200)
+  } else {
+    return res.status(500).send(postA)
+  }
 }
 
-const markQuestionHelpful = (req, res) => {
-  markingQuestionHelpful(req.params.question_id)
-  .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
-    res.status(200).send(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in markQustionHelpfup'))
-    }
-  })
+const markQuestionHelpful = async (req, res) => {
+  const questionH = await markingQuestionHelpful(req.params.question_id)
+  if (!questionH) {
+    return res.status(200)
+  } else {
+    return res.status(500).send(questionH)
+  }
 }
 
-const markAnswerHelpful = (req, res) => {
-  markingAnswerHelpful(req.params.answer_id)
-  .then((data) => {
-    console.log(data,' inside controller masterInfoControl')
-    res.status(200).send(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in markAnswerHelpful'))
-    }
-  })
+const markAnswerHelpful = async (req, res) => {
+  const answerH = await markingAnswerHelpful(req.params.answer_id)
+  if (!answerH) {
+    return res.status(200)
+  } else {
+    return res.status(500).send(answerH)
+  }
 }
 
-
-const reportQuestion = (req, res) => {
-  reportingQuestion(req.params.question_id)
-  .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
-    res.status(200).json(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in reportQuestion'))
-    }
-  })
+const reportQuestion = async (req, res) => {
+  const reportQ = await reportingQuestion(req.params.question_id)
+  if (!reportQ) {
+    return res.status(200)
+  } else {
+    return res.status(500).send(reportQ)
+  }
 }
 
-const reportAnswer = (req, res) => {
-  reportingAnswer(req.params.answer_id)
-  .then((data) => {
-    //console.log(data,' inside controller masterInfoControl')
-    res.status(200).json(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in reportAnswer'))
-    }
-  })
+const reportAnswer = async (req, res) => {
+  const reportA = await reportingAnswer(req.params.answer_id)
+  if (!reportA) {
+    return res.status(200)
+  } else {
+    return res.status(500).send(reportA)
+  }
 }
 
 

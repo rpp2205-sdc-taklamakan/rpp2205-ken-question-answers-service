@@ -19,7 +19,7 @@ app.get('/',(req, res) => {
 })
 
 // get questions
-app.get('/qa/questions/:product_id',(req, res) => {
+app.get('/qa/questions/:product_id',(req, getQuestion) => {
   getQuestion(req, res)
 })
 
