@@ -2,37 +2,6 @@ const pgp = require('pg-promise')();
 const bodyParser = require("body-parser");
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
 
-/*
-SELECT
-  json_build_object(
-    'question_id', Question.idQuestion, 'question_body', Question.body, 'question_date', Question.date, 'asker_name', Question.askerName,
-    'question_helpfulness', Question.helpfulness, 'reported', Question.reported, 'answers', Answers
-  ) results
-  FROM Question
-  RIGHT JOIN (
-    SELECT questionId,
-    json_agg(
-      json_build_object(
-        'id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
-        'helpfulness', Answers.helpfulness, 'questionId', Answers.questionId, 'photos', answerPhotos
-      )
-    ) answer
-    FROM Answers
-    RIGHT JOIN (
-      SELECT answerId,
-      json_agg(
-        json_build_object(
-          'url', answerPhotos.url
-        )
-      ) photos
-      FROM answerPhotos
-      GROUP BY answerId
-    ) answerPhotos on Answers.idAnswer = answerPhotos.answerId
-    GROUP BY questionId
-  ) Answers on Question.idQuestion = Answers.questionId
-  WHERE productId=${input}
-*/
-
 const gettingQuestion = async function(input) {
   let count = 50;
   let page = 1;
