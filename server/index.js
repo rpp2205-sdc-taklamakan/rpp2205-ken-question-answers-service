@@ -4,61 +4,73 @@ const app = express();
 const port = 3001;
 const pgp = require('pg-promise')();
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
-const {getQuestion} = require('./controller.js')
+const {getQuestion, getAnswer, postQuestion, postAnswer, markAnswerHelpful, markQuestionHelpful, reportQuestion, reportAnswer} = require('./controller.js')
 
 
 // parse requests of content-type - application/json
-app.use(express.json());
+// app.use(express.json());
 
 // parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.get('/',(req, res) => {
+  res.status(200).json(getQuestion)
+})
 
+// app.get('/qa/questions/',(req, res) => {
+//   console.log('definitive', req.query)
+//   getQuestion(req, res)
+// })
 
-
+// get questions
 app.get('/qa/questions/:product_id',(req, res) => {
+  console.log(req.query)
   getQuestion(req, res)
-}
-  // console.log(req.params.product_id)
-  // console.log(masterInfoControl(req.params.product_id), 'inside index.js')
+})
 
-)
+// tried to pass in getQuestion as a argument instead
+// app.get('/qa/questions/:product_id', getQuestion)
+// point free style
+
+
+
 
 // get answers
 app.get('/qa/questions/:question_id/answers', (req, res) => {
-  console.log('inside get answers')
+  getAnswer(req, res)
 });
 
 // post question
 app.post('/qa/questions', (req, res) => {
-  console.log('inside post question')
+  postQuestion(req, res)
 });
 
 // post answer
 app.post('/qa/questions/:question_id/answers', (req, res) => {
-  console.log('inside post answer')
+  postAnswer(req, res)
 });
 
 // put question as helpful
 app.put('/qa/questions/:question_id/helpful', (req, res) => {
-  console.log('inside put question as helpful')
-});
-
-// put question to report
-app.put('/qa/questions/:question_id/report', (req, res) => {
-  console.log('inside put question to report')
+  markQuestionHelpful(req, res)
 });
 
 // put answer as helpful
 app.put('/qa/answers/:answer_id/helpful', (req, res) => {
-  console.log('put answer as helpful')
+  markAnswerHelpful(req, res)
+})
+
+// question to report
+app.put('/qa/questions/:question_id/report', (req, res) => {
+  reportQuestion(req, res)
 });
 
 // put answer to report
 app.put('/qa/answers/:answer_id/report', (req, res) => {
-  console.log('put answer to report')
+  reportAnswer(req, res)
 });
+
 
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
