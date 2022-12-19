@@ -42,4 +42,18 @@ CREATE TABLE answerPhotos (
       REFERENCES Answers(idAnswer)
 );
 
+CREATE INDEX questProdIndex ON Question(productId);
+CREATE INDEX questAnsIndex ON Answers(questionId);
+CREATE INDEX AnsPhoIndex ON answerPhotos(answerId);
+
+CLUSTER Question USING questProdIndex;
+CLUSTER Answers USING questAnsIndex;
+CLUSTER answerPhotos USING AnsPhoIndex;
+
+CLUSTER Question;
+CLUSTER Answers;
+CLUSTER answerPhotos;
+
+CLUSTER;
+
 
