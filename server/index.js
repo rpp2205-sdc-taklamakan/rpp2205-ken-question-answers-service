@@ -18,16 +18,15 @@ app.get('/',(req, res) => {
   res.status(200).json(getQuestion)
 })
 
-// app.get('/qa/questions/',(req, res) => {
-//   console.log('definitive', req.query)
-//   getQuestion(req, res)
-// })
-
-// get questions
-app.get('/qa/questions/:product_id',(req, res) => {
-  console.log(req.query)
+app.get('/qa/questions/',(req, res) => {
   getQuestion(req, res)
 })
+
+// get questions
+// app.get('/qa/questions/:product_id',(req, res) => {
+//   console.log(req.params)
+//   getQuestion(req, res)
+// })
 
 // tried to pass in getQuestion as a argument instead
 // app.get('/qa/questions/:product_id', getQuestion)

@@ -2,9 +2,7 @@ const pgp = require('pg-promise')();
 const bodyParser = require("body-parser");
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
 
-const gettingQuestion = async function(input) {
-  let count = 50;
-  let page = 1;
+const gettingQuestion = async function(input, count) {
   const gettingQ = await db.query(`
   SELECT
   json_build_object(
@@ -34,39 +32,32 @@ const gettingQuestion = async function(input) {
     GROUP BY questionId
   ) Answers on Question.idQuestion = Answers.questionId
   WHERE productId=${input}
+  LIMIT ${count}
   `)
   return gettingQ
 }
 // LIMIT ${count} OFFSET ${(page - 1) * count}
 
-const gettingAnswer = function(questionId) {
-  return db.query(`
+const gettingAnswer = async function(questionId) {
+  const getA = await db.query(`
   SELECT json_build_object(
-    'answer_id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName, 'helpfulness', Answers.helpfulness
+    'answer_id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
+    'helpfulness', Answers.helpfulness, 'photos', answerPhotos
   ) results
   FROM ANSWERS
+  RIGHT JOIN (
+    SELECT answerId,
+    json_agg(
+      json_build_object(
+        'url', answerPhotos.url, 'id', answerPhotos.idPhoto
+      )
+    )photos
+    FROM answerPhotos
+    GROUP BY answerId
+  ) answerPhotos on Answers.idAnswer = answerPhotos.answerId
   WHERE questionId=${questionId}
   `)
-  .then((data) => {
-    // add line: 'photos', answerPhotos :::: to select object
-    /////////////////////////
-    // help. need to be able to do a left join for photos.
-    // LEFT JOIN (
-    //   SELECT answerId,
-    //   json_agg(
-    //     json_build_object(
-    //       'id', idPhoto, 'url', answersPhoto.url
-    //     )
-    //   ) photos
-    //   FROM answerPhotos
-    //   GROUP BY answerId
-    //   answerPhotos on Answer.idAnswer = answerPhotos.answerId
-    // ) answerPhotos on Answer.idAnswer = answerPhotos.answerId
-    return data
-  })
-  .catch((error) => {
-    console.log(error, 'error inside gettingAnswer')
-  })
+  return getA
 }
 
 const postingQuestion = async function(data) {
