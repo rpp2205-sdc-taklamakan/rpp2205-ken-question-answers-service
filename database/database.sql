@@ -42,6 +42,8 @@ CREATE TABLE answerPhotos (
       REFERENCES Answers(idAnswer)
 );
 
+
+
 CREATE INDEX questProdIndex ON Question(productId);
 CREATE INDEX questAnsIndex ON Answers(questionId);
 CREATE INDEX AnsPhoIndex ON answerPhotos(answerId);

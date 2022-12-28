@@ -9,25 +9,10 @@ const getQuestion = async (req, res) => {
   // console.log(req.params)
   const getQ = await gettingQuestion(req.query.product_id, req.query.count)
   if (getQ) {
-    let x = [];
-    for (item in getQ[0]) {
-      x.push(getQ[0][item])
-    }
     let obj = {
       product_id: req.query.product_id,
-      results: x
+      results: getQ
     }
-    obj.results.forEach((question) => {
-      question.answers.answer.forEach((item, index) => {
-        question.answers[item.id] = item;
-        let picArr = [];
-        item.photos.photos.forEach((pic) => {
-          picArr.push(pic.url)
-        })
-        item.photos = picArr;
-      })
-      delete question.answers.answer
-    })
     res.status(200).json(obj)
   } else {
     res.status(500).send(getQ)
@@ -43,17 +28,8 @@ const getAnswer = async (req, res) => {
       count: 0,
       results: []
     }
-    getA.forEach((item) => {
-      obj.results.push(item.results)
-    })
-    obj.count = obj.results.length
-    obj.results.forEach((ans) => {
-      let arrPic = [];
-      ans.photos.photos.forEach((pic, index) => {
-        arrPic.push(pic)
-      })
-      ans.photos = arrPic
-    })
+    obj.results = getA;
+    obj.count = obj.results.length;
     res.status(200).json(obj)
   } else {
     res.status(500).send(getA)
