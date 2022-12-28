@@ -2,9 +2,59 @@ const pgp = require('pg-promise')();
 const bodyParser = require("body-parser");
 const db = pgp('postgres://kenkurita:@localhost:5432/questionanswer')
 
-const gettingQuestion = async function(input) {
-  let count = 50;
-  let page = 1;
+const gettingQuestion = async function(productId, count) {
+  // console.time('a')
+  const questions = (await db.query(`
+  SELECT
+  json_build_object(
+    'question_id', Question.idQuestion, 'question_body', Question.body, 'question_date', Question.date, 'asker_name', Question.askerName,
+    'question_helpfulness', Question.helpfulness, 'reported', Question.reported
+  ) results
+  FROM Question
+  WHERE productId=${productId}
+  `)).map(x => x.results);
+
+
+  for (const question of questions) {
+    // console.log(question, 'this is the question');
+    const answers = (await db.query(`
+    SELECT
+    json_build_object(
+      'id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
+      'helpfulness', Answers.helpfulness, 'questionId', Answers.questionId
+    ) answer
+    FROM Answers
+    WHERE questionId=${question.question_id}`)).map(x => x.answer);
+    question.answers = {}
+
+    for (const answer of answers) {
+      question.answers[answer.id] = answer;
+      answer.photos = [];
+      // console.log(answer, 'ken')
+      const photos = await db.query(`
+      SELECT
+        json_build_object(
+          'url', answerPhotos.url, 'id', AnswerPhotos.idPhoto
+        ) photos
+        FROM answerPhotos
+        WHERE answerId = ${answer.id}
+      `);
+      let pic = {
+        id: photos.id,
+        url: photos.url
+      }
+      // console.log(photos, 'test1')
+      answer.photos.push(pic)
+    }
+
+  }
+
+  // console.timeEnd('a')
+
+  return questions
+}
+
+const _gettingQuestion = async function(input, count) {
   const gettingQ = await db.query(`
   SELECT
   json_build_object(
@@ -34,39 +84,60 @@ const gettingQuestion = async function(input) {
     GROUP BY questionId
   ) Answers on Question.idQuestion = Answers.questionId
   WHERE productId=${input}
+  LIMIT ${count}
   `)
   return gettingQ
 }
 // LIMIT ${count} OFFSET ${(page - 1) * count}
 
-const gettingAnswer = function(questionId) {
-  return db.query(`
+const gettingAnswer = async function(questionId) {
+  const answers = (await db.query(`
   SELECT json_build_object(
-    'answer_id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName, 'helpfulness', Answers.helpfulness
+    'answer_id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
+    'helpfulness', Answers.helpfulness
+  ) results
+  FROM answers
+  WHERE questionId=${questionId}
+  `)).map(x => x.results);
+
+  for (const answer of answers) {
+    answer.photos = []
+    const photos = await db.query(`
+    SELECT json_build_object(
+      'url', answerPhotos.url, 'id', AnswerPhotos.idPhoto
+    ) photos
+    FROM answerPhotos
+    WHERE answerId = ${answer.answer_id}
+      `);
+      let pic = {
+        id: photos.id,
+        url: photos.url
+      }
+      answer.photos.push(pic)
+  }
+  return answers
+}
+
+const _gettingAnswer = async function(questionId) {
+  const getA = await db.query(`
+  SELECT json_build_object(
+    'answer_id', Answers.idAnswer, 'body', Answers.body, 'date', Answers.date, 'answerer_name', Answers.answererName,
+    'helpfulness', Answers.helpfulness, 'photos', answerPhotos
   ) results
   FROM ANSWERS
+  RIGHT JOIN (
+    SELECT answerId,
+    json_agg(
+      json_build_object(
+        'url', answerPhotos.url, 'id', answerPhotos.idPhoto
+      )
+    )photos
+    FROM answerPhotos
+    GROUP BY answerId
+  ) answerPhotos on Answers.idAnswer = answerPhotos.answerId
   WHERE questionId=${questionId}
   `)
-  .then((data) => {
-    // add line: 'photos', answerPhotos :::: to select object
-    /////////////////////////
-    // help. need to be able to do a left join for photos.
-    // LEFT JOIN (
-    //   SELECT answerId,
-    //   json_agg(
-    //     json_build_object(
-    //       'id', idPhoto, 'url', answersPhoto.url
-    //     )
-    //   ) photos
-    //   FROM answerPhotos
-    //   GROUP BY answerId
-    //   answerPhotos on Answer.idAnswer = answerPhotos.answerId
-    // ) answerPhotos on Answer.idAnswer = answerPhotos.answerId
-    return data
-  })
-  .catch((error) => {
-    console.log(error, 'error inside gettingAnswer')
-  })
+  return getA
 }
 
 const postingQuestion = async function(data) {

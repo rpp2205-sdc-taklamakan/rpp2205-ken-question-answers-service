@@ -6,25 +6,34 @@ const currentData = {};
 
 const getQuestion = async (req, res) => {
   // console.log('req,res', req.params)
-  const getQ = await gettingQuestion(req.params.product_id)
+  // console.log(req.params)
+  const getQ = await gettingQuestion(req.query.product_id, req.query.count)
   if (getQ) {
-    res.status(200).json(getQ)
+    let obj = {
+      product_id: req.query.product_id,
+      results: getQ
+    }
+    res.status(200).json(obj)
   } else {
     res.status(500).send(getQ)
   }
 }
 
-const getAnswer = (req, res) => {
-  gettingAnswer(req.params.question_id)
-  .then((data) => {
-    console.log(data,' inside controller masterInfoControl')
-    res.status(200).json(data)
-  })
-  .catch((err) => {
-    if (err) {
-      res.status(500).send(console.log(err, 'error in getAnswer'))
+const getAnswer = async (req, res) => {
+  const getA = await gettingAnswer(req.params.question_id)
+  if (getA) {
+    let obj = {
+      question: req.params.question_id,
+      page: 0,
+      count: 0,
+      results: []
     }
-  })
+    obj.results = getA;
+    obj.count = obj.results.length;
+    res.status(200).json(obj)
+  } else {
+    res.status(500).send(getA)
+  }
 }
 
 const postQuestion = async (req, res) => {
